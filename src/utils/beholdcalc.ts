@@ -42,13 +42,13 @@ export function formatCrewField(locale: Definitions.Locale, message: Message, cr
 
 	let entries: string[] = [];
 	if (crew.bigbook_tier) {
-		entries.push(Translate.get(locale, 'CREWFIELD_BIGBOOK', {tier: crew.bigbook_tier}));
+		entries.push(Translate.get(locale, 'CREWFIELD_BIGBOOK', { tier: crew.bigbook_tier }));
 	}
 
-	entries.push(Translate.get(locale, 'CREWFIELD_VOYAGE', {rank: crew.ranks.voyRank}));
-	entries.push(Translate.get(locale, 'CREWFIELD_GAUNTLET', {rank: crew.ranks.gauntletRank}));
-	entries.push(Translate.get(locale, (crew.events !== 1) ? 'CREWFIELD_EVENTS_PLURAL' : 'CREWFIELD_EVENTS_SINGULAR', {events: crew.events }));
-	entries.push(Translate.get(locale, (crew.collections.length !== 1) ? 'CREWFIELD_COLLECTIONS_PLURAL' : 'CREWFIELD_COLLECTIONS_SINGULAR', {collections: crew.collections.length }));
+	entries.push(Translate.get(locale, 'CREWFIELD_VOYAGE', { rank: crew.ranks.voyRank }));
+	entries.push(Translate.get(locale, 'CREWFIELD_GAUNTLET', { rank: crew.ranks.gauntletRank }));
+	entries.push(Translate.get(locale, (crew.events !== 1) ? 'CREWFIELD_EVENTS_PLURAL' : 'CREWFIELD_EVENTS_SINGULAR', { events: crew.events }));
+	entries.push(Translate.get(locale, (crew.collections.length !== 1) ? 'CREWFIELD_COLLECTIONS_PLURAL' : 'CREWFIELD_COLLECTIONS_SINGULAR', { collections: crew.collections.length }));
 
 	let reply = entries.join(', ');
 
@@ -82,20 +82,20 @@ function recommendations(locale: Definitions.Locale, crew: CrewFromBehold[]) {
 	let title = '';
 	if (best[0].crew.bigbook_tier > 7) {
 		if (starBest.length > 0) {
-			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK_STAR', {crew: starBest[0].crew.name});
+			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK_STAR', { crew: Translate.localizeCrew(locale, starBest[0].crew) });
 		} else {
-			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK', {crew: best[0].crew.name});
+			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK', { crew: Translate.localizeCrew(locale, best[0].crew) });
 		}
 	} else {
 		if (starBest.length > 0 && starBest[0].crew != best[0].crew) {
 			if (starBest[0].crew.bigbook_tier > 7) {
-				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR_CRAP', {crew: best[0].crew.name, starcrew: starBest[0].crew.name});
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR_CRAP', { crew: Translate.localizeCrew(locale, best[0].crew), starcrew: Translate.localizeCrew(locale, starBest[0].crew) });
 			} else {
-				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR', {crew: best[0].crew.name, starcrew: starBest[0].crew.name});
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR', { crew: Translate.localizeCrew(locale, best[0].crew), starcrew: Translate.localizeCrew(locale, starBest[0].crew) });
 			}
 		} else {
 			if (best[0].crew.bigbook_tier == best[1].crew.bigbook_tier) {
-				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_SAMETIER', {crew1: best[0].crew.name, crew2: best[1].crew.name});
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_SAMETIER', { crew1: Translate.localizeCrew(locale, best[0].crew), crew2: Translate.localizeCrew(locale, best[1].crew) });
 			} else {
 				let stars = 0;
 				if (best[0].crew.symbol == crew[0].crew.symbol) {
@@ -111,13 +111,13 @@ function recommendations(locale: Definitions.Locale, crew: CrewFromBehold[]) {
 
 				if (!allMaxed && stars == best[0].crew.max_rarity) {
 					if (best[1].crew.bigbook_tier < 6) {
-						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED', {crew1: best[0].crew.name, crew2: best[1].crew.name});
+						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED', { crew1: Translate.localizeCrew(locale, best[0].crew), crew2: Translate.localizeCrew(locale, best[1].crew) });
 					} else {
 						// TODO: if both best[0] and best[1] are FF-d
-						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED_SECONDCRAP', {crew1: best[0].crew.name, crew2: best[1].crew.name});
+						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED_SECONDCRAP', { crew1: Translate.localizeCrew(locale, best[0].crew), crew2: Translate.localizeCrew(locale, best[1].crew) });
 					}
 				} else {
-					title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BEST', {crew: best[0].crew.name});
+					title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BEST', { crew: Translate.localizeCrew(locale, best[0].crew) });
 				}
 			}
 		}
@@ -217,7 +217,7 @@ export async function calculateBehold(
 				for (let i = 0; i < 3; i++) {
 					customranks[i] = Translate.get(locale, 'BEHOLD_CUSTOM_CREWRANK', {
 						stars: found[i],
-						crew: bcrew[i].name,
+						crew: Translate.localizeCrew(locale, bcrew[i]),
 						voyage: voyranks[i] + 1,
 						gauntlet: gauntletranks[i] + 1
 					});
@@ -240,9 +240,9 @@ export async function calculateBehold(
 	embed = embed
 		.setThumbnail(`${CONFIG.ASSETS_URL}${best.imageUrlPortrait}`)
 		.setDescription(description)
-		.addField(crew1.name, formatCrewField(locale, message, crew1, beholdResult.crew1.stars, customranks[0]))
-		.addField(crew2.name, formatCrewField(locale, message, crew2, beholdResult.crew2.stars, customranks[1]))
-		.addField(crew3.name, formatCrewField(locale, message, crew3, beholdResult.crew3.stars, customranks[2]))
+		.addField(Translate.localizeCrew(locale, crew1), formatCrewField(locale, message, crew1, beholdResult.crew1.stars, customranks[0]))
+		.addField(Translate.localizeCrew(locale, crew2), formatCrewField(locale, message, crew2, beholdResult.crew2.stars, customranks[1]))
+		.addField(Translate.localizeCrew(locale, crew3), formatCrewField(locale, message, crew3, beholdResult.crew3.stars, customranks[2]))
 		.setFooter(Translate.get(locale, customranks[0] ? 'BEHOLD_FOOTER_CUSTOM' : 'BEHOLD_FOOTER'));
 
 	sendAndCache(message, embed);

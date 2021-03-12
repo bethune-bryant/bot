@@ -110,5 +110,65 @@
     "CREWFIELD_NOTOP10": {
         "en": "No top 10 stats",
         "de": "Keine Top 10 Statistiken"
+    },
+    "STATS_NOTFOUND": {
+        "en": "Sorry, I couldn't find a crew matching '#{searchString}#'",
+        "de": "Entschuldigung, ich konnte keinen passenden '#{searchString}#' für die Crew finden"
+    },
+    "STATS_MANYFOUND": {
+        "en": "There are #{length}# crew matching that: #{list}#. Which one did you mean?",
+        "de": "Es gibt #{length}# passende Besatzungsmitglieder: #{list}#. Welches hast du gemeint?"
+    },
+    "STATS_NICKNAMES_AKA": {
+        "en": "Also known as",
+        "de": "Auch bekannt als"
+    },
+    "STATS_NICKNAMES_AUTHOR": {
+        "en": " (coined by #{creator}#)",
+        "de": " (erstellt von #{creator}#)"
+    },
+    "STATS_TRAITS": {
+        "en": "Traits",
+        "de": "Züge"
+    },
+    "STATS_CUSTOM_PROFILE": {
+        "en": "Data is customized for [your profile](#{url}#)'s buffs",
+        "de": "Die datas sind an die Buffs [Ihres Profils](#{url}#) angepasst"
+    },
+    "STATS_DIFFICULTY11": {
+        "en": "Super Easy",
+        "de": "Super einfach"
+    },
+    "STATS_DIFFICULTY22": {
+        "en": "Very Easy",
+        "de": "Sehr leicht"
+    },
+	"STATS_DIFFICULTY33": {
+        "en": "Easy",
+        "de": "Einfach"
+    },
+	"STATS_DIFFICULTY44": {
+        "en": "Below Average",
+        "de": "Unterdurchschnittlich"
+    },
+	"STATS_DIFFICULTY55": {
+        "en": "Average",
+        "de": "Durchschnittlich"
+    },
+	"STATS_DIFFICULTY66": {
+        "en": "Above Average",
+        "de": "Überdurchschnittlich"
+    },
+	"STATS_DIFFICULTY77": {
+        "en": "Difficult",
+        "de": "Schwer"
+    },
+	"STATS_DIFFICULTY88": {
+        "en": "Hard",
+        "de": "Hart"
+    },
+    "STATS_DIFFICULTYMAX": {
+        "en": "Insane",
+        "de": "Wahnsinnig"
     }
 }

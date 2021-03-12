@@ -149,6 +149,7 @@ declare namespace Definitions {
 		symbol: string;
 		name: string;
 		short_name: string;
+		traits: string[];
 		traits_named: string[];
 		traits_hidden: string[];
 		imageUrlPortrait: string;

@@ -13,57 +13,45 @@ import {
 import { getEmoteOrString, sendAndCache } from '../utils/discord';
 import { loadProfile, userFromMessage, applyCrewBuffs } from '../utils/profile';
 import CONFIG from '../utils/config';
+import { Translate } from './../utils/translate';
 
-function getDifficulty(chronCostRank: number): string {
+function getDifficulty(locale: Definitions.Locale, chronCostRank: number): string {
 	let percentage = Math.round(100 - (chronCostRank * 100) / DCData.totalCrew());
 
+	let difString = '';
+
 	if (percentage < 11) {
-		return `Super Easy (${percentage}%)`;
+		difString = Translate.get(locale, "STATS_DIFFICULTY11");
+	} else if (percentage < 22) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY22");
+	} else if (percentage < 33) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY33");
+	} else if (percentage < 44) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY44");
+	} else if (percentage < 55) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY55");
+	} else if (percentage < 66) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY66");
+	} else if (percentage < 77) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY77");
+	} else if (percentage < 88) {
+		difString = Translate.get(locale, "STATS_DIFFICULTY88");
+	} else {
+		difString = Translate.get(locale, "STATS_DIFFICULTYMAX");
 	}
 
-	if (percentage < 22) {
-		return `Very Easy (${percentage}%)`;
-	}
-
-	if (percentage < 33) {
-		return `Easy (${percentage}%)`;
-	}
-
-	if (percentage < 44) {
-		return `Below Average (${percentage}%)`;
-	}
-
-	if (percentage < 55) {
-		return `Average (${percentage}%)`;
-	}
-
-	if (percentage < 66) {
-		return `Above Average (${percentage}%)`;
-	}
-
-	if (percentage < 77) {
-		return `Difficult (${percentage}%)`;
-	}
-
-	if (percentage < 88) {
-		return `Hard (${percentage}%)`;
-	}
-
-	return `Insane (${percentage}%)`;
+	return `${difString} (${percentage}%)`;
 }
 
-async function asyncHandler(message: Message, searchString: string, raritySearch: number, extended: boolean, base: boolean) {
+async function asyncHandler(message: Message, searchString: string, raritySearch: number, extended: boolean, base: boolean, locale: Definitions.Locale) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
 	let results = DCData.searchCrew(searchString);
 	if (results === undefined) {
-		sendAndCache(message, `Sorry, I couldn't find a crew matching '${searchString}'`);
+		sendAndCache(message, Translate.get(locale, 'STATS_NOTFOUND', { searchString }));
 	} else if (results.length > 1) {
-		sendAndCache(
-			message,
-			`There are ${results.length} crew matching that: ${results.map(crew => crew.name).join(', ')}. Which one did you mean?`
-		);
+		sendAndCache(message, Translate.get(locale, 'STATS_MANYFOUND', { length: results.length, list: results.map(crew => Translate.localizeCrew(locale, crew)).join(', ') }));
 	} else {
 		let crew = results[0];
 
@@ -72,16 +60,16 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 		}
 
 		let embed = new RichEmbed()
-			.setTitle(crew.name)
+			.setTitle(Translate.localizeCrew(locale, crew))
 			.setThumbnail(`${CONFIG.ASSETS_URL}${crew.imageUrlPortrait}`)
 			.setColor(colorFromRarity(crew.max_rarity))
 			.setURL(`${CONFIG.DATACORE_URL}crew/${crew.symbol}/`);
 
 		if (extended && crew.nicknames && crew.nicknames.length > 0) {
-			embed = embed.addField('Also known as', `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? ` (coined by _${n.creator}_)` : ''}`).join(', ')}`);
+			embed = embed.addField(Translate.get(locale, 'STATS_NICKNAMES_AKA'), `${crew.nicknames.map((n) => `${n.cleverThing}${n.creator ? Translate.get(locale, 'STATS_NICKNAMES_AUTHOR', { creator: n.creator }) : ''}`).join(', ')}`);
 		}
 
-		embed = embed.addField('Traits', `${crew.traits_named.join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
+		embed = embed.addField(Translate.get(locale, 'STATS_TRAITS'), `${crew.traits.map(t => Translate.localizeCrewTrait(locale, t)).join(', ')}*, ${crew.traits_hidden.join(', ')}*`);
 
 		if (!base) {
 			let user = await userFromMessage(message);
@@ -99,11 +87,13 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 					embed = embed.addField(
 						user.profiles[0].captainName,
-						`Data is customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+						Translate.get(locale, 'STATS_CUSTOM_PROFILE', { url: `${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}` })
 					);
 				}
 			}
 		}
+
+		// TODO: continue localizing here:
 
 		embed = embed
 			.addField('Stats', formatStatLine(message, crew, raritySearch))
@@ -114,7 +104,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				`${crew.totalChronCost} ${getEmoteOrString(message, 'chrons', 'chrons')}, ${crew.factionOnlyTotal} faction`,
 				true
 			)
-			.addField('Difficulty', getDifficulty(crew.ranks.chronCostRank), true)
+			.addField('Difficulty', getDifficulty(locale, crew.ranks.chronCostRank), true)
 			.setFooter(formatCrewCoolRanks('en', crew));
 
 		if (crew.bigbook_tier && crew.events) {
@@ -130,9 +120,8 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 
 		if (extended) {
 			let bonusType = getBonusType(crew.action.bonus_type);
-			let shipAbilities = `+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType)} | **Initialize:** ${
-				crew.action.initial_cooldown
-			}s | **Duration:** ${crew.action.duration}s | **Cooldown:** ${crew.action.cooldown}s`;
+			let shipAbilities = `+${crew.action.bonus_amount} ${getEmoteOrString(message, bonusType, bonusType)} | **Initialize:** ${crew.action.initial_cooldown
+				}s | **Duration:** ${crew.action.duration}s | **Cooldown:** ${crew.action.cooldown}s`;
 
 			if (crew.action.ability) {
 				shipAbilities += `\n**Bonus Ability: **${actionAbilityoString(crew.action.ability)}`;
@@ -203,8 +192,9 @@ class Stats implements Definitions.Command {
 		let extended = args['_'][0] !== 'stats';
 		let searchString = (<string[]>args.crew).join(' ');
 		let raritySearch = args.stars ? (args.stars as number) : 0;
+		let locale = args.locale ? (args.locale as Definitions.Locale) : 'en';
 
-		args.promisedResult = asyncHandler(message, searchString, raritySearch, extended, args.base ? (args.base as boolean) : false);
+		args.promisedResult = asyncHandler(message, searchString, raritySearch, extended, args.base ? (args.base as boolean) : false, locale);
 	}
 }
 

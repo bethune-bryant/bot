@@ -1,25 +1,19 @@
 import fs from 'fs';
 import { Client } from 'discord.js';
 
-import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp } from './utils';
+import { parseCommandInput, Logger, prepareArgParser, getUrl, escapeRegExp, preferredLocale } from './utils';
 import { MessageCache, sendAndCache } from './utils/discord';
 import { DCData } from './data/DCData';
 import { sequelize } from './sequelize';
 import { runImageAnalysis } from './commands/imageanalysis';
+import { Translate } from './utils/translate';
 
 require('dotenv').config();
 
 const client = new Client();
 
-/*
-For announcements (RSS from forum https://forum.disruptorbeam.com/stt/categories/starfleet-communications/feed.rss)
-https://www.npmjs.com/package/rss-parser
-https://github.com/rbren/rss-parser#readme
-https://github.com/domchristie/turndown
-https://github.com/synzen/Discord.RSS
-*/
-
 DCData.setup(process.env.DC_DATA_PATH!);
+Translate.setup(process.env.DC_DATA_PATH!);
 client.login(process.env.BOT_TOKEN);
 
 // TODO: merge config default with guild specific options
@@ -101,7 +95,7 @@ client.on('message', (message) => {
 		if (!cmdConfig || cmdConfig.channelsDisabled.indexOf(message.channel.toString()) < 0) {
 			let url = getUrl(message);
 			if (url) {
-				runImageAnalysis('en', message, url, usedPrefix);
+				runImageAnalysis(preferredLocale(message, guildConfig), message, url, usedPrefix);
 				return;
 			}
 		}
@@ -122,7 +116,7 @@ client.on('message', (message) => {
 
 	if (conOutput) {
 		if (conOutput.length > 1990) {
-			sendAndCache(message, '```' + conOutput.substr(0,1987) + '...```');
+			sendAndCache(message, '```' + conOutput.substr(0, 1987) + '...```');
 		} else {
 			sendAndCache(message, '```' + conOutput + '```');
 		}

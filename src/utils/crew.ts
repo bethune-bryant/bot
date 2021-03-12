@@ -1,6 +1,8 @@
 import { Message } from 'discord.js';
 import { getEmoteOrString } from './discord';
 
+import { Translate } from './translate';
+
 function formatSkill(skill: Definitions.Skill, useSpace: boolean, forGauntlet: boolean = false) {
 	if (forGauntlet) {
 		return `${useSpace ? ' ' : '^'}(${skill.range_min}-${skill.range_max})`;
@@ -66,26 +68,26 @@ function formatCrewStats(crew: Definitions.BotCrew, useSpace: boolean, raritySea
 	return formatCrewStatsInternal(crew.base_skills, useSpace, forGauntlet);
 }
 
-export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean = false, separator: string = ', ') {
+export function formatCrewCoolRanks(locale: Definitions.Locale, crew: Definitions.BotCrew, orEmpty: boolean = false, separator: string = ', ') {
 	// TODO: recalculate based on user's buffConfig
 
 	let result = [];
 	if (crew.ranks.voyRank <= 10) {
-		result.push(`Voyage #${crew.ranks.voyRank} overall`);
+		result.push(Translate.get(locale, 'CREWFIELD_VOYAGE_OVERALL', {rank: crew.ranks.voyRank}));
 	}
 
 	if (crew.ranks.gauntletRank <= 10) {
-		result.push(`Gauntlet #${crew.ranks.gauntletRank} overall`);
+		result.push(Translate.get(locale, 'CREWFIELD_GAUNTLET_OVERALL', {rank: crew.ranks.gauntletRank}));
 	}
 
 	for (const rank in crew.ranks) {
 		if (crew.ranks[rank] > 0 && crew.ranks[rank] <= 10) {
 			if (rank.startsWith('V_')) {
-				result.push(`Voyage #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+				result.push(Translate.get(locale, 'CREWFIELD_VOYAGE', {rank: crew.ranks[rank]}) + ' ' + rank.substr(2).replace('_', '/'));
 			} else if (rank.startsWith('G_')) {
-				result.push(`Gauntlet #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+				result.push(Translate.get(locale, 'CREWFIELD_GAUNTLET', {rank: crew.ranks[rank]}) + ' ' + rank.substr(2).replace('_', '/'));
 			} else if (rank.startsWith('B_')) {
-				result.push(`Base #${crew.ranks[rank]} ${rank.substr(2).replace('_', '/')}`);
+				result.push(Translate.get(locale, 'CREWFIELD_BASE', {rank: crew.ranks[rank]}) + ' ' + rank.substr(2).replace('_', '/'));
 			}
 		}
 	}
@@ -94,7 +96,7 @@ export function formatCrewCoolRanks(crew: Definitions.BotCrew, orEmpty: boolean 
 		if (orEmpty) {
 			return '';
 		} else {
-			return 'No top 10 stats';
+			return Translate.get(locale, 'CREWFIELD_NOTOP10');
 		}
 	} else {
 		return result.join(separator);

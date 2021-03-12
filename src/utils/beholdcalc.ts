@@ -5,6 +5,7 @@ import { formatStatLine, formatCrewCoolRanks, colorFromRarity } from './crew';
 import { loadProfile, loadProfileRoster, userFromMessage, applyCrewBuffs } from './profile';
 import { sendAndCache } from './discord';
 import CONFIG from './config';
+import { Translate } from './translate';
 
 export function isValidBehold(data: any, threshold: number = 10) {
 	if (!data.top || (data.top.symbol != 'behold_title' && threshold > 1) || data.top.score < threshold) {
@@ -37,17 +38,21 @@ export function isValidBehold(data: any, threshold: number = 10) {
 	return true;
 }
 
-export function formatCrewField(message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
-	let reply = '';
+export function formatCrewField(locale: Definitions.Locale, message: Message, crew: Definitions.BotCrew, stars: number, custom: string) {
+
+	let entries: string[] = [];
 	if (crew.bigbook_tier) {
-		reply += `Big book **tier ${crew.bigbook_tier}**, `;
+		entries.push(Translate.get(locale, 'CREWFIELD_BIGBOOK', {tier: crew.bigbook_tier}));
 	}
 
-	reply += `Voyage #${crew.ranks.voyRank}, Gauntlet #${crew.ranks.gauntletRank}, ${crew.events || 0} event${
-		crew.events !== 1 ? 's' : ''
-	}, ${crew.collections.length} collection${crew.collections.length !== 1 ? 's' : ''}`;
+	entries.push(Translate.get(locale, 'CREWFIELD_VOYAGE', {rank: crew.ranks.voyRank}));
+	entries.push(Translate.get(locale, 'CREWFIELD_GAUNTLET', {rank: crew.ranks.gauntletRank}));
+	entries.push(Translate.get(locale, (crew.events !== 1) ? 'CREWFIELD_EVENTS_PLURAL' : 'CREWFIELD_EVENTS_SINGULAR', {events: crew.events }));
+	entries.push(Translate.get(locale, (crew.collections.length !== 1) ? 'CREWFIELD_COLLECTIONS_PLURAL' : 'CREWFIELD_COLLECTIONS_SINGULAR', {collections: crew.collections.length }));
 
-	let coolRanks = formatCrewCoolRanks(crew, true);
+	let reply = entries.join(', ');
+
+	let coolRanks = formatCrewCoolRanks(locale, crew, true);
 	if (coolRanks) {
 		reply += `\n*${coolRanks}*`;
 	}
@@ -66,9 +71,9 @@ interface CrewFromBehold {
 	stars: number;
 }
 
-function recommendations(crew: CrewFromBehold[]) {
+function recommendations(locale: Definitions.Locale, crew: CrewFromBehold[]) {
 	let best = crew.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
-	let starBest = crew.filter(c => c.stars > 0 && c.stars < c.crew.max_rarity);
+	let starBest = crew.filter((c) => c.stars > 0 && c.stars < c.crew.max_rarity);
 
 	if (starBest.length > 0) {
 		starBest = starBest.sort((a, b) => a.crew.bigbook_tier - b.crew.bigbook_tier);
@@ -77,20 +82,20 @@ function recommendations(crew: CrewFromBehold[]) {
 	let title = '';
 	if (best[0].crew.bigbook_tier > 7) {
 		if (starBest.length > 0) {
-			title = `All these options suck, so add a star to ${starBest[0].crew.name} I guess`;
+			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK_STAR', {crew: starBest[0].crew.name});
 		} else {
-			title = `All these options suck, pick ${best[0].crew.name} if you have room`;
+			title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_ALLSUCK', {crew: best[0].crew.name});
 		}
 	} else {
 		if (starBest.length > 0 && starBest[0].crew != best[0].crew) {
 			if (starBest[0].crew.bigbook_tier > 7) {
-				title = `${best[0].crew.name} is your best bet; star up the crappy ${starBest[0].crew.name} if you don't have any slots to spare`;
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR_CRAP', {crew: best[0].crew.name, starcrew: starBest[0].crew.name});
 			} else {
-				title = `Add a star to ${starBest[0].crew.name} or pick ${best[0].crew.name} if you have room`;
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_CANADDSTAR', {crew: best[0].crew.name, starcrew: starBest[0].crew.name});
 			}
 		} else {
 			if (best[0].crew.bigbook_tier == best[1].crew.bigbook_tier) {
-				title = `Pick either ${best[0].crew.name} or ${best[1].crew.name}`;
+				title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_SAMETIER', {crew1: best[0].crew.name, crew2: best[1].crew.name});
 			} else {
 				let stars = 0;
 				if (best[0].crew.symbol == crew[0].crew.symbol) {
@@ -106,13 +111,13 @@ function recommendations(crew: CrewFromBehold[]) {
 
 				if (!allMaxed && stars == best[0].crew.max_rarity) {
 					if (best[1].crew.bigbook_tier < 6) {
-						title = `${best[1].crew.name} is your best bet, unless you want to start another ${best[0].crew.name}`;
+						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED', {crew1: best[0].crew.name, crew2: best[1].crew.name});
 					} else {
 						// TODO: if both best[0] and best[1] are FF-d
-						title = `It may be worth starting another ${best[0].crew.name}, pick ${best[1].crew.name} if you don't want dupes`;
+						title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED_SECONDCRAP', {crew1: best[0].crew.name, crew2: best[1].crew.name});
 					}
 				} else {
-					title = `${best[0].crew.name} is your best bet`;
+					title = Translate.get(locale, 'BEHOLD_RECOMMENDATIONS_BEST', {crew: best[0].crew.name});
 				}
 			}
 		}
@@ -127,21 +132,27 @@ function recommendations(crew: CrewFromBehold[]) {
 function applyCrew(increw: Definitions.BotCrew, buffConfig: Definitions.BuffConfig): Definitions.BotCrew {
 	let crew: Definitions.BotCrew = JSON.parse(JSON.stringify(increw));
 	crew.base_skills = applyCrewBuffs(crew.base_skills, buffConfig, false);
-	crew.skill_data.forEach(sd => {
+	crew.skill_data.forEach((sd) => {
 		sd.base_skills = applyCrewBuffs(sd.base_skills, buffConfig, false);
 	});
 
 	return crew;
 }
 
-export async function calculateBehold(message: Message, beholdResult: any, fromCommand: boolean, base: boolean) {
+export async function calculateBehold(
+	locale: Definitions.Locale,
+	message: Message,
+	beholdResult: any,
+	fromCommand: boolean,
+	base: boolean
+) {
 	let crew1 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew1.symbol);
 	let crew2 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew2.symbol);
 	let crew3 = DCData.getBotCrew().find((c: any) => c.symbol === beholdResult.crew3.symbol);
 
 	if (!crew1 || !crew2 || !crew3) {
 		if (fromCommand) {
-			sendAndCache(message, `Sorry, if that was a valid behold I wasn't able to find the crew.`);
+			sendAndCache(message, Translate.get(locale, 'BEHOLD_INVALID_CREW_SYMBOLS'));
 		}
 
 		return false;
@@ -152,7 +163,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 		if (fromCommand) {
 			sendAndCache(
 				message,
-				`Sorry, if that was a valid behold I wasn't able to find the correct crew (${crew1.name}, ${crew2.name}, ${crew3.name}).`
+				Translate.get(locale, 'BEHOLD_INVALID_CREW_RARITY', { crew1: crew1.name, crew2: crew2.name, crew3: crew3.name })
 			);
 		}
 
@@ -160,7 +171,7 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 	}
 
 	let embed = new RichEmbed()
-		.setTitle('Detailed comparison')
+		.setTitle(Translate.get(locale, 'BEHOLD_TITLE'))
 		.setColor(colorFromRarity(crew1.max_rarity))
 		.setURL(`${CONFIG.DATACORE_URL}behold/?crew=${crew1.symbol}&crew=${crew2.symbol}&crew=${crew3.symbol}`);
 
@@ -198,25 +209,29 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 				let roster = loadProfileRoster(profile);
 
 				roster = roster.sort((a, b) => b.voyageScore - a.voyageScore);
-				let voyranks = bcrew.map(crew => roster.findIndex(e => e.crew.archetype_id === crew.archetype_id));
+				let voyranks = bcrew.map((crew) => roster.findIndex((e) => e.crew.archetype_id === crew.archetype_id));
 
 				roster = roster.sort((a, b) => b.gauntletScore - a.gauntletScore);
-				let gauntletranks = bcrew.map(crew => roster.findIndex(e => e.crew.archetype_id === crew.archetype_id));
+				let gauntletranks = bcrew.map((crew) => roster.findIndex((e) => e.crew.archetype_id === crew.archetype_id));
 
 				for (let i = 0; i < 3; i++) {
-					customranks[i] = `For your roster (at ${found[i]} stars FE), ${bcrew[i].name} would be Voyage #${voyranks[i] +
-						1}, Gauntlet #${gauntletranks[i] + 1}`;
+					customranks[i] = Translate.get(locale, 'BEHOLD_CUSTOM_CREWRANK', {
+						stars: found[i],
+						crew: bcrew[i].name,
+						voyage: voyranks[i] + 1,
+						gauntlet: gauntletranks[i] + 1
+					});
 				}
 
 				embed = embed.addField(
 					user.profiles[0].captainName,
-					`Stats are customized for [your profile](${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid})'s buffs`
+					Translate.get(locale, 'BEHOLD_CUSTOM_PROFILE', { url: `${CONFIG.DATACORE_URL}profile/?dbid=${user.profiles[0].dbid}` })
 				);
 			}
 		}
 	}
 
-	const { best, description } = recommendations([
+	const { best, description } = recommendations(locale, [
 		{ crew: crew1, stars: beholdResult.crew1.stars },
 		{ crew: crew2, stars: beholdResult.crew2.stars },
 		{ crew: crew3, stars: beholdResult.crew3.stars }
@@ -225,14 +240,10 @@ export async function calculateBehold(message: Message, beholdResult: any, fromC
 	embed = embed
 		.setThumbnail(`${CONFIG.ASSETS_URL}${best.imageUrlPortrait}`)
 		.setDescription(description)
-		.addField(crew1.name, formatCrewField(message, crew1, beholdResult.crew1.stars, customranks[0]))
-		.addField(crew2.name, formatCrewField(message, crew2, beholdResult.crew2.stars, customranks[1]))
-		.addField(crew3.name, formatCrewField(message, crew3, beholdResult.crew3.stars, customranks[2]))
-		.setFooter(
-			customranks[0]
-				? 'Make sure to re-upload your profile frequently to get accurate custom recommendations'
-				: `Upload your profile to get custom recommendations`
-		);
+		.addField(crew1.name, formatCrewField(locale, message, crew1, beholdResult.crew1.stars, customranks[0]))
+		.addField(crew2.name, formatCrewField(locale, message, crew2, beholdResult.crew2.stars, customranks[1]))
+		.addField(crew3.name, formatCrewField(locale, message, crew3, beholdResult.crew3.stars, customranks[2]))
+		.setFooter(Translate.get(locale, customranks[0] ? 'BEHOLD_FOOTER_CUSTOM' : 'BEHOLD_FOOTER'));
 
 	sendAndCache(message, embed);
 

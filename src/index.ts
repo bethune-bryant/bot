@@ -101,7 +101,7 @@ client.on('message', (message) => {
 		if (!cmdConfig || cmdConfig.channelsDisabled.indexOf(message.channel.toString()) < 0) {
 			let url = getUrl(message);
 			if (url) {
-				runImageAnalysis(message, url, usedPrefix);
+				runImageAnalysis('en', message, url, usedPrefix);
 				return;
 			}
 		}

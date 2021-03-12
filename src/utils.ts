@@ -96,6 +96,20 @@ export function prepareArgParser(
 		}
 	}
 
+	// TODO: per-user locale?
+	let locale: Definitions.Locale = 'en';
+	if (guildConfig.locale) {
+		if (typeof guildConfig.locale === "string") {
+			locale = guildConfig.locale;
+		} else {
+			for (let pc of guildConfig.locale) {
+				if (pc.channels.indexOf(message.channel.toString()) >= 0) {
+					locale = pc.locale;
+				}
+			}
+		}
+	}
+
 	const startTime = Date.now();
 
 	let lastError = undefined;
@@ -111,7 +125,7 @@ export function prepareArgParser(
 			lastError = msg;
 			argParser.exit(1, err);
 		})
-		.parse(parsedInput, { message, guildConfig, ArgParser: argParser }, async (err, argv, output) => {
+		.parse(parsedInput, { message, guildConfig, locale, ArgParser: argParser }, async (err, argv, output) => {
 			// Hack to get around parse not waiting for promises
 			if (argv.promisedResult) {
 				await (argv.promisedResult as Promise<void>).catch((e: Error) => {

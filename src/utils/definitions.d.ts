@@ -18,6 +18,13 @@ declare namespace Definitions {
 		asReply?: boolean;
 	}
 
+	export interface PerChannelLocale {
+		locale: Locale;
+		channels: string[];
+	}
+
+	export type Locale = 'en' | 'de' | 'sp' | 'fr';
+
 	export interface GuildConfig {
 		overrideDefaultPrefixes?: boolean;
 		prefixes?: string[];
@@ -25,6 +32,7 @@ declare namespace Definitions {
 		commands?: GuildConfigCommand[];
 		customs?: GuildCustomCommand[];
 		fleetids?: string[];
+		locale?: Locale | PerChannelLocale[];
 	}
 
 	export type SkillName =

@@ -10,7 +10,6 @@ import CONFIG from '../utils/config';
 import { Logger } from '../utils';
 import { formatCrewField } from '../utils/beholdcalc';
 
-
 let OffersCache = new NodeCache({ stdTTL: 600 });
 
 async function loadOffers(): Promise<any> {
@@ -39,7 +38,7 @@ function getOfferList(offers: any) {
 	return new Set(offers.map((o: any) => o.primary_content[0].title));
 }
 
-async function asyncHandler(message: Message, offer_name?: String) {
+async function asyncHandler(locale: Definitions.Locale, message: Message, offer_name?: String) {
 	// This is just to break up the flow and make sure any exceptions end up in the .catch, not thrown during yargs command execution
 	await new Promise<void>(resolve => setImmediate(() => resolve()));
 
@@ -67,7 +66,7 @@ async function asyncHandler(message: Message, offer_name?: String) {
 	let embed = new RichEmbed()
 		.setTitle(`Crew details for offer: ${selectedOffer.primary_content[0].title}`);
 	relevantCrew.forEach((crew) => {
-		embed.addField(crew.name, formatCrewField(message, crew, crew.max_rarity, ''));
+		embed.addField(crew.name, formatCrewField(locale, message, crew, crew.max_rarity, ''));
 	});
 	sendAndCache(message, embed);
 	return;
@@ -88,7 +87,8 @@ class Offers implements Definitions.Command {
 	handler(args: yargs.Arguments) {
 		let message = <Message>args.message;
 		let offerName = <string[]>args.offer_name;
-		args.promisedResult = asyncHandler(message, offerName.join(' '));
+		let locale = args.locale ? (args.locale as Definitions.Locale) : 'en';
+		args.promisedResult = asyncHandler(locale, message, offerName.join(' '));
 	}
 }
 

@@ -6,7 +6,7 @@ import { URLSearchParams } from 'url';
 class CONFIG {
 	static readonly URL_PLATFORM: string = 'https://thorium.disruptorbeam.com/';
 	static readonly URL_SERVER: string = 'https://stt.disruptorbeam.com/';
-	static readonly CLIENT_API_VERSION: number = 15;
+	static readonly CLIENT_API_VERSION: number = 17;
 }
 
 function _weirdUrlify(form: any): string {

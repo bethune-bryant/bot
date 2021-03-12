@@ -1,0 +1,114 @@
+{
+    "BEHOLD_INVALID": {
+        "en": "Sorry, that doesn't appear to be a valid behold; try lowering the threshold with the -t option if you think it should be recognizable. (#{error}#)",
+        "de": "Entschuldigung, das scheint kein gültiger Blick zu sein. Versuchen Sie, den Schwellenwert mit der Option -t zu senken, wenn Sie der Meinung sind, dass er erkennbar sein sollte. (#{error}#)"
+    },
+    "BEHOLD_INVALID_URL": {
+        "en": "Sorry, I wasn't able to recognize a behold from '#{url}#'",
+        "de": "Entschuldigung, ich konnte einen Blick von der '#{url}#' nicht erkennen"
+    },
+    "BEHOLD_INVALID_CREW_SYMBOLS": {
+        "en": "Sorry, if that was a valid behold I wasn't able to find the crew.",
+        "de": "Entschuldigung, wenn das gültig war, konnte ich die Crew nicht finden."
+    },
+    "BEHOLD_INVALID_CREW_RARITY": {
+        "en": "Sorry, if that was a valid behold I wasn't able to find the correct crew (#{crew1}#, #{crew2}#, #{crew3}#).",
+        "de": "Entschuldigung, wenn das gültig war, konnte ich nicht die richtige Crew finden (#{crew1}#, #{crew2}#, #{crew3}#)."
+    },
+    "BEHOLD_TITLE": {
+        "en": "Detailed comparison",
+        "de": "Detaillierter Vergleich"
+    },
+    "BEHOLD_FOOTER": {
+        "en": "Upload your profile to get custom recommendations",
+        "de": "Laden Sie Ihr Profil hoch, um benutzerdefinierte Empfehlungen zu erhalten"
+    },
+    "BEHOLD_FOOTER_CUSTOM": {
+        "en": "Make sure to re-upload your profile frequently to get accurate custom recommendations",
+        "de": "Stellen Sie sicher, dass Sie Ihr Profil regelmäßig erneut hochladen, um genaue benutzerdefinierte Empfehlungen zu erhalten"
+    },
+    "BEHOLD_CUSTOM_PROFILE": {
+        "en": "Stats are customized for [your profile](#{url}#)'s buffs",
+        "de": "Die Statistiken sind an die Buffs [Ihres Profils](#{url}#) angepasst"
+    },
+    "BEHOLD_CUSTOM_CREWRANK": {
+        "en": "For your roster (at #{stars}# stars FE), #{crew}# would be Voyage # #{voyage}#, Gauntlet # #{gauntlet}#",
+        "de": "Für Ihren Dienstplan (bei #{stars}# Sternen FE) wäre #{crew}# Voyage # #{voyage}#, Gauntlet # #{gauntlet}#"
+    },
+    "BEHOLD_RECOMMENDATIONS_ALLSUCK": {
+        "en": "All these options suck, pick #{crew}# if you have room",
+        "de": "Alle diese Optionen sind zum Kotzen, wählen Sie #{crew}#, wenn Sie Platz haben"
+    },
+    "BEHOLD_RECOMMENDATIONS_ALLSUCK_STAR": {
+        "en": "All these options suck, so add a star to #{crew}# I guess",
+        "de": "Alle diese Optionen sind zum Kotzen, also füge #{crew}# einen Stern hinzu, denke ich"
+    },
+    "BEHOLD_RECOMMENDATIONS_CANADDSTAR": {
+        "en": "Add a star to #{starcrew}# or pick #{crew}# if you have room",
+        "de": "Fügen Sie #{starcrew}# einen Stern hinzu oder wählen Sie #{crew}#, wenn Sie Platz haben"
+    },
+    "BEHOLD_RECOMMENDATIONS_CANADDSTAR_CRAP": {
+        "en": "#{crew}# is your best bet; star up the crappy #{starcrew}# if you don't have any slots to spare",
+        "de": "#{crew}# ist Ihre beste Wahl; starte die beschissene #{starcrew}#, wenn du keine freien Plätze hast"
+    },
+    "BEHOLD_RECOMMENDATIONS_SAMETIER": {
+        "en": "Pick either #{crew1}# or #{crew2}#",
+        "de": "Wählen Sie entweder #{crew1}# oder #{crew2}#"
+    },
+    "BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED": {
+        "en": "#{crew2}# is your best bet, unless you want to start another #{crew1}#",
+        "de": "#{crew2}# ist die beste Wahl, es sei denn, Sie möchten eine weitere #{crew1}# starten"
+    },
+    "BEHOLD_RECOMMENDATIONS_BESTALREADYMAXED_SECONDCRAP": {
+        "en": "It may be worth starting another #{crew1}#, pick #{crew2}# if you don't want dupes",
+        "de": "Es kann sich lohnen, eine weitere #{crew1}# zu starten, wählen Sie #{crew2}#, wenn Sie keine Dupes wollen"
+    },
+    "BEHOLD_RECOMMENDATIONS_BEST": {
+        "en": "#{crew}# is your best bet",
+        "de": "#{crew}# ist die beste Wahl"
+    },
+    "CREWFIELD_BIGBOOK": {
+        "en": "Big book **tier #{tier}#**",
+        "de": "Big Book **Tier #{tier}#**"
+    },
+    "CREWFIELD_VOYAGE": {
+        "en": "Voyage# #{rank}#",
+        "de": "Voyage# #{rank}#"
+    },
+    "CREWFIELD_VOYAGE_OVERALL": {
+        "en": "Voyage# #{rank}# overall",
+        "de": "Voyage# #{rank}# insgesamt"
+    },
+    "CREWFIELD_GAUNTLET": {
+        "en": "Gauntlet# #{rank}#",
+        "de": "Gauntlet# #{rank}#"
+    },
+    "CREWFIELD_GAUNTLET_OVERALL": {
+        "en": "Gauntlet# #{rank}# overall",
+        "de": "Gauntlet# #{rank}# insgesamt"
+    },
+    "CREWFIELD_BASE": {
+        "en": "Base# #{rank}#",
+        "de": "Grundlinie# #{rank}#"
+    },
+    "CREWFIELD_EVENTS_SINGULAR": {
+        "en": "#{events}# event",
+        "de": "#{events}# Veranstaltung"
+    },
+    "CREWFIELD_EVENTS_PLURAL": {
+        "en": "#{events}# events",
+        "de": "#{events}# Veranstaltungen"
+    },
+    "CREWFIELD_COLLECTIONS_SINGULAR": {
+        "en": "#{collections}# collection",
+        "de": "#{collections}# Sammlung"
+    },
+    "CREWFIELD_COLLECTIONS_PLURAL": {
+        "en": "#{collections}# collections",
+        "de": "#{collections}# Sammlungen"
+    },
+    "CREWFIELD_NOTOP10": {
+        "en": "No top 10 stats",
+        "de": "Keine Top 10 Statistiken"
+    }
+}

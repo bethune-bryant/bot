@@ -7,7 +7,9 @@ import { sendAndCache } from '../utils/discord';
 
 import { Logger } from '../utils';
 
-async function asyncHandler(message: Message, url: string, threshold: number, base: boolean) {
+import { Translate } from '../utils/translate';
+
+async function asyncHandler(message: Message, url: string, threshold: number, base: boolean, locale: Definitions.Locale) {
 	let data = await analyzeImage(url);
 	if (data) {
 		Logger.info(`Behold command`, {
@@ -15,15 +17,12 @@ async function asyncHandler(message: Message, url: string, threshold: number, ba
 			analysisResult: data
 		});
 		if (data.beholdResult && isValidBehold(data.beholdResult, threshold)) {
-			await calculateBehold(message, data.beholdResult, true, base);
+			await calculateBehold(locale, message, data.beholdResult, true, base);
 		} else {
-			sendAndCache(message, 
-				`Sorry, that doesn't appear to be a valid behold; try lowering the threshold with the -t option if you think it should be recognizable. (${data
-					.beholdResult!.error || ''})`
-			);
+			sendAndCache(message, Translate.get(locale, 'BEHOLD_INVALID', { error: data.beholdResult!.error || '' }));
 		}
 	} else {
-		sendAndCache(message, `Sorry, I wasn't able to recognize a behold from '${url}'`);
+		sendAndCache(message, Translate.get(locale, 'BEHOLD_INVALID_URL', { url }));
 	}
 }
 
@@ -54,8 +53,9 @@ class Behold implements Definitions.Command {
 		let message = <Message>args.message;
 		let url = <string>args.url;
 		let threshold = <number>args.threshold;
+		let locale = args.locale ? (args.locale as Definitions.Locale) : 'en';
 
-		args.promisedResult = asyncHandler(message, url, threshold, args.base ? (args.base as boolean) : false);
+		args.promisedResult = asyncHandler(message, url, threshold, args.base ? (args.base as boolean) : false, locale);
 	}
 }
 

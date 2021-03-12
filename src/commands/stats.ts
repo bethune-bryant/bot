@@ -115,7 +115,7 @@ async function asyncHandler(message: Message, searchString: string, raritySearch
 				true
 			)
 			.addField('Difficulty', getDifficulty(crew.ranks.chronCostRank), true)
-			.setFooter(formatCrewCoolRanks(crew));
+			.setFooter(formatCrewCoolRanks('en', crew));
 
 		if (crew.bigbook_tier && crew.events) {
 			embed = embed.addField('Bigbook Tier', crew.bigbook_tier, true).addField('Events', crew.events, true);
